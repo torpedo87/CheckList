@@ -9,10 +9,9 @@
 import UIKit
 
 class CustomTextView: UITextView {
-  
+  var bullet: String = "-"
   var checked: String = "v"
   var unChecked: String = "ㅁ"
   var listMode: Bool = false
-  
   
 }

@@ -23,13 +23,33 @@ class ViewController: UIViewController {
     view.backgroundColor = .white
     view.addSubview(customTextView)
     
-    customTextView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 100).isActive = true
-    customTextView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 50).isActive = true
-    customTextView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -50).isActive = true
-    customTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -100).isActive = true
+    customTextView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,
+                                        constant: 100).isActive = true
+    customTextView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,
+                                            constant: 50).isActive = true
+    customTextView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,
+                                             constant: -50).isActive = true
+    customTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                                           constant: -100).isActive = true
   }
 }
 
 extension ViewController: UITextViewDelegate {
   
+  func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+    let textString : NSString = textView.text as NSString
+    
+    let newTextString = textString.replacingCharacters(in: range, with: text)
+    
+    let lines = newTextString.components(separatedBy: .newlines)
+    for (index, line) in lines.enumerated() {
+      
+      //current line
+      if index == lines.count - 1 {
+        print(line)
+      }
+    }
+    
+    return true
+  }
 }
