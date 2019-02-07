@@ -36,23 +36,73 @@ class ViewController: UIViewController {
 
 extension ViewController: UITextViewDelegate {
   
-  func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+  func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange,
+                replacementText text: String) -> Bool {
+    
     let textString : NSString = textView.text as NSString
-    
     let newTextString = textString.replacingCharacters(in: range, with: text)
+    let lines = newTextString.components(separatedBy: .newlines)
     
-    var lines = newTextString.components(separatedBy: .newlines)
-    
-    for (index, line) in lines.enumerated() {
+    //list 사용중
+    if customTextView.listMode {
       
-      if line.prefix(2) == "\(customTextView.bullet) " && !line.trimmingCharacters(in: .whitespaces).isEmpty {
-        let startIndex = line.index(line.startIndex, offsetBy: 2)
-        let newLine = "\(customTextView.unChecked  )" + line[startIndex..<line.endIndex]
-        lines[index] = newLine
-        customTextView.text = lines.joined(separator: "\n")
+      if text == "\n" {
+        
+        //enter 연속 두번
+        if lines.joined(separator: "\n").suffix(customTextView.unCheckedWithIndent.count + 1) ==
+          "\(customTextView.unCheckedWithIndent)\n" {
+          textView.text = didSecondEnterAtListMode(lines: lines)
+          setListMode(false)
+          return true
+        } else {
+          textView.text = didEnterAtListMode(lines: lines)
+          return false
+        }
       }
+    }
+      
+    //list 미사용중
+    else {
+      
+      for (index, line) in lines.enumerated() {
+        
+        //list 입력시작
+        if line.prefix(customTextView.bulletWithIndent.count) ==
+          "\(customTextView.bulletWithIndent)" &&
+          !line.trimmingCharacters(in: .whitespaces).isEmpty {
+          textView.text = didBeginListMode(lines: lines, line: line, index: index)
+          setListMode(true)
+          return false
+        }
+      }
+      
     }
     
     return true
+  }
+  
+  private func didEnterAtListMode(lines: [String]) -> String {
+    var newLines = lines
+    newLines[lines.count - 1] = "\(customTextView.unCheckedWithIndent)"
+    return newLines.joined(separator: "\n")
+  }
+  
+  private func didSecondEnterAtListMode(lines: [String]) -> String {
+    var newLines = lines
+    newLines.removeLast()
+    newLines.removeLast()
+    return newLines.joined(separator: "\n")
+  }
+  
+  private func didBeginListMode(lines: [String], line: String, index: Int) -> String {
+    var newLines = lines
+    let startIndex = line.index(line.startIndex, offsetBy: customTextView.bulletWithIndent.count)
+    let newLine = "\(customTextView.unCheckedWithIndent)" + line[startIndex..<line.endIndex]
+    newLines[index] = newLine
+    return newLines.joined(separator: "\n")
+  }
+  
+  private func setListMode(_ mode: Bool) {
+    customTextView.listMode = mode
   }
 }
