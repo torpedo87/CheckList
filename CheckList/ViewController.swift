@@ -41,12 +41,15 @@ extension ViewController: UITextViewDelegate {
     
     let newTextString = textString.replacingCharacters(in: range, with: text)
     
-    let lines = newTextString.components(separatedBy: .newlines)
+    var lines = newTextString.components(separatedBy: .newlines)
+    
     for (index, line) in lines.enumerated() {
       
-      //current line
-      if index == lines.count - 1 {
-        print(line)
+      if line.prefix(2) == "\(customTextView.bullet) " && !line.trimmingCharacters(in: .whitespaces).isEmpty {
+        let startIndex = line.index(line.startIndex, offsetBy: 2)
+        let newLine = "\(customTextView.unChecked  )" + line[startIndex..<line.endIndex]
+        lines[index] = newLine
+        customTextView.text = lines.joined(separator: "\n")
       }
     }
     
