@@ -10,7 +10,8 @@ import UIKit
 
 class MainViewController: UIViewController {
   
-  private var dict: [IndexPath: TableRow] = [IndexPath(row: 0, section: 0) : TableRow()]
+  //private var dict: [IndexPath: TableRow] = [IndexPath(row: 0, section: 0) : TableRow()]
+  private var arr: [TableRow] = [TableRow()]
   
   private lazy var tableView: UITableView = {
     let table = UITableView()
@@ -38,13 +39,13 @@ class MainViewController: UIViewController {
 extension MainViewController: UITableViewDataSource {
   
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return dict.count
+    return arr.count
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     if let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier,
                                                 for: indexPath) as? TableViewCell {
-      let tableRow = dict[indexPath]!
+      let tableRow = arr[indexPath.row]
       cell.configure(indexPath: indexPath, tableRow: tableRow)
       cell.delegate = self
       return cell
@@ -56,17 +57,18 @@ extension MainViewController: UITableViewDataSource {
 
 extension MainViewController: TableViewCellDelegate {
   func addNextCell(indexPath: IndexPath, tableRow: TableRow) {
-    dict[indexPath] = tableRow
-    let newIndexPath = IndexPath(row: indexPath.row + 1, section: 0)
-    dict[newIndexPath] = TableRow(text: "", isListed: tableRow.isListed, isChecked: false)
     
+    arr[indexPath.row] = tableRow
+    let newTableRow = TableRow(text: "", isListed: tableRow.isListed, isChecked: false)
+    arr.append(newTableRow)
+    let newIndexPath = IndexPath(row: indexPath.row + 1, section: 0)
     tableView.beginUpdates()
     tableView.insertRows(at: [newIndexPath], with: .automatic)
     tableView.endUpdates()
   }
   
   func deleteCell(indexPath: IndexPath) {
-    dict.removeValue(forKey: indexPath)
+    arr.remove(at: indexPath.row)
     tableView.beginUpdates()
     tableView.deleteRows(at: [indexPath], with: .automatic)
     tableView.endUpdates()

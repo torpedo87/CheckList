@@ -69,8 +69,10 @@ class TableViewCell: UITableViewCell {
       customTextView.textContainer.exclusionPaths = [UIBezierPath(rect: bulletButton.frame)]
     } else {
       bulletButton.removeFromSuperview()
+      customTextView.textContainer.exclusionPaths = []
+      customTextView.text = ""
     }
-    layoutIfNeeded()
+    //layoutIfNeeded()
   }
   
   func configCheckMode() {
@@ -101,6 +103,11 @@ class TableViewCell: UITableViewCell {
   private func updateTableRowText() {
     tableRow.text = customTextView.text
   }
+  
+  override func prepareForReuse() {
+    super.prepareForReuse()
+    self.tableRow = TableRow()
+  }
 }
 
 
@@ -126,7 +133,7 @@ extension TableViewCell: UITextViewDelegate {
       "\(customTextView.bulletWithIndent)" &&
       !newTextString.trimmingCharacters(in: .whitespaces).isEmpty &&
       !tableRow.isListed {
-      textView.text = getTextWithoutBullet(currentText: newTextString)
+      textView.text = ""
       setListMode(listMode: true)
     }
     
@@ -143,20 +150,16 @@ extension TableViewCell: UITextViewDelegate {
     //enter
     if newTextString.last == "\n" {
       
-      if tableRow.isListed && textString == "" {
+      if tableRow.isListed && textString == " " {
         setListMode(listMode: false)
+        return false
       } else {
         didEscapeFromCell(isAdded: true)
+        return false
       }
     }
     
     return true
-  }
-  
-  private func getTextWithoutBullet(currentText: String) -> String {
-    let startIndex = currentText.index(currentText.startIndex, offsetBy: customTextView.bulletWithIndent.count)
-    let newLine = String(currentText[startIndex..<currentText.endIndex])
-    return newLine
   }
   
   private func getTextWithBullet(currentText: String) -> String {
