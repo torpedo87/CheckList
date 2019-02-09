@@ -9,8 +9,9 @@
 import UIKit
 
 protocol TableViewCellDelegate: class {
-  func didEnterAtListMode(indexPath: IndexPath, text: String, isListed: Bool, isChecked: Bool)
   func didSizeChanged()
+  func addNextCell(indexPath: IndexPath, tableRow: TableRow)
+  func deleteCell(indexPath: IndexPath)
 }
 
 class TableViewCell: UITableViewCell {
@@ -29,14 +30,18 @@ class TableViewCell: UITableViewCell {
     textView.backgroundColor = UIColor.yellow
     textView.isScrollEnabled = false
     textView.delegate = self
+    textView.font = UIFont.preferredFont(forTextStyle: .body)
     return textView
   }()
   
-  private lazy var button: UIButton = {
+  private lazy var bulletButton: UIButton = {
     let button = UIButton()
     button.translatesAutoresizingMaskIntoConstraints = false
     button.backgroundColor = UIColor.green
+    button.setTitle(unChecked, for: .normal)
+    button.setTitle(checked, for: UIControl.State.selected)
     button.addTarget(self, action: #selector(toggleCheck), for: .touchUpInside)
+    button.sizeToFit()
     return button
   }()
   
@@ -45,42 +50,56 @@ class TableViewCell: UITableViewCell {
     self.indexPath = indexPath
     self.tableRow = tableRow
     
-    addSubview(button)
     addSubview(customTextView)
     setListMode(listMode: tableRow.isListed)
-
-    if tableRow.isListed {
-      button.setTitle(bullet, for: UIControl.State.normal)
-    }
+    configCheckMode()
     
-    button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5).isActive = true
-    button.topAnchor.constraint(equalTo: topAnchor, constant: 5).isActive = true
-    button.sizeToFit()
-    customTextView.leadingAnchor.constraint(equalTo: button.trailingAnchor, constant: 5).isActive = true
+    customTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5).isActive = true
     customTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5).isActive = true
     customTextView.topAnchor.constraint(equalTo: topAnchor, constant: 5).isActive = true
     customTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5).isActive = true
-    
     customTextView.becomeFirstResponder()
   }
   
   func setListMode(listMode: Bool) {
     tableRow.isListed = listMode
     if listMode {
-      button.isHidden = false
+      customTextView.addSubview(bulletButton)
+      bulletButton.setTitle(bullet, for: UIControl.State.normal)
+      customTextView.textContainer.exclusionPaths = [UIBezierPath(rect: bulletButton.frame)]
     } else {
-      button.isHidden = true
+      bulletButton.removeFromSuperview()
     }
     layoutIfNeeded()
   }
   
-  @objc func toggleCheck() {
-    tableRow.isChecked = !tableRow.isChecked
+  func configCheckMode() {
     if tableRow.isChecked {
-      button.setTitle(checked, for: .normal)
+      bulletButton.setTitle(checked, for: .normal)
     } else {
-      button.setTitle(unChecked, for: .normal)
+      bulletButton.setTitle(unChecked, for: .normal)
     }
+    setAttrbutedString(isChecked: tableRow.isChecked)
+  }
+  
+  @objc func toggleCheck() {
+    
+    tableRow.isChecked = !tableRow.isChecked
+    configCheckMode()
+  }
+  
+  private func setAttrbutedString(isChecked: Bool) {
+    let font = UIFont.preferredFont(forTextStyle: .body)
+    let textColor = isChecked ? UIColor.lightGray : UIColor.black
+    let attributes: [NSAttributedString.Key: Any] = [
+      .foregroundColor: textColor,
+      .font: font,
+      .textEffect: NSAttributedString.TextEffectStyle.letterpressStyle]
+    customTextView.attributedText = NSAttributedString(string: customTextView.text, attributes: attributes)
+  }
+  
+  private func updateTableRowText() {
+    tableRow.text = customTextView.text
   }
 }
 
@@ -107,26 +126,49 @@ extension TableViewCell: UITextViewDelegate {
       "\(customTextView.bulletWithIndent)" &&
       !newTextString.trimmingCharacters(in: .whitespaces).isEmpty &&
       !tableRow.isListed {
-      textView.text = didStartListMode(currentText: newTextString)
+      textView.text = getTextWithoutBullet(currentText: newTextString)
       setListMode(listMode: true)
     }
     
-    //리스트모드일때 백스페이스
-    if textString == "" && newTextString == "" && tableRow.isListed {
-      textView.text = didFinishListMode(currentText: newTextString)
-      setListMode(listMode: false)
+    //백스페이스
+    if textString == "" && newTextString == "" {
+      if tableRow.isListed {
+        textView.text = getTextWithBullet(currentText: newTextString)
+        setListMode(listMode: false)
+      } else {
+        didEscapeFromCell(isAdded: false)
+      }
+    }
+    
+    //enter
+    if newTextString.last == "\n" {
+      
+      if tableRow.isListed && textString == "" {
+        setListMode(listMode: false)
+      } else {
+        didEscapeFromCell(isAdded: true)
+      }
     }
     
     return true
   }
   
-  private func didStartListMode(currentText: String) -> String {
+  private func getTextWithoutBullet(currentText: String) -> String {
     let startIndex = currentText.index(currentText.startIndex, offsetBy: customTextView.bulletWithIndent.count)
     let newLine = String(currentText[startIndex..<currentText.endIndex])
     return newLine
   }
   
-  private func didFinishListMode(currentText: String) -> String {
+  private func getTextWithBullet(currentText: String) -> String {
     return customTextView.bullet + currentText
+  }
+  
+  private func didEscapeFromCell(isAdded: Bool) {
+    updateTableRowText()
+    if isAdded {
+      delegate?.addNextCell(indexPath: indexPath, tableRow: tableRow)
+    } else if indexPath.row != 0 {
+      delegate?.deleteCell(indexPath: indexPath)
+    }
   }
 }

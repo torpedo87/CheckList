@@ -98,6 +98,7 @@ extension ViewController: UITextViewDelegate {
     var newLines = lines
     let startIndex = line.index(line.startIndex, offsetBy: customTextView.bulletWithIndent.count)
     let newLine = "\(customTextView.unCheckedWithIndent)" + line[startIndex..<line.endIndex]
+    
     newLines[index] = newLine
     return newLines.joined(separator: "\n")
   }

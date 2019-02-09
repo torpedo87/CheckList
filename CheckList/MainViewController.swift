@@ -55,23 +55,28 @@ extension MainViewController: UITableViewDataSource {
 }
 
 extension MainViewController: TableViewCellDelegate {
+  func addNextCell(indexPath: IndexPath, tableRow: TableRow) {
+    dict[indexPath] = tableRow
+    let newIndexPath = IndexPath(row: indexPath.row + 1, section: 0)
+    dict[newIndexPath] = TableRow(text: "", isListed: tableRow.isListed, isChecked: false)
+    
+    tableView.beginUpdates()
+    tableView.insertRows(at: [newIndexPath], with: .automatic)
+    tableView.endUpdates()
+  }
+  
+  func deleteCell(indexPath: IndexPath) {
+    dict.removeValue(forKey: indexPath)
+    tableView.beginUpdates()
+    tableView.deleteRows(at: [indexPath], with: .automatic)
+    tableView.endUpdates()
+  }
+  
   func didSizeChanged() {
     UIView.setAnimationsEnabled(false)
     tableView.beginUpdates()
     tableView.endUpdates()
     UIView.setAnimationsEnabled(true)
-  }
-  
-  
-  func didEnterAtListMode(indexPath: IndexPath, text: String, isListed: Bool, isChecked: Bool) {
-//    dict[indexPath] = TableRow(text: text, isListed: isListed, isChecked: <#T##Bool#>)
-//    let newTableRow = TableRow(text: text, isListed: isListed, isChecked: false)
-//    tableView.beginUpdates()
-//    let newIndexPath = IndexPath(row: indexPath.row + 1, section: 0)
-//    dict[newIndexPath] = newTableRow
-//    tableView.insertRows(at: [newIndexPath], with: .automatic)
-//    tableView.endUpdates()
-//    tableView.reloadRows(at: [newIndexPath], with: .automatic)
   }
   
 }
