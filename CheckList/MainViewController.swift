@@ -10,7 +10,6 @@ import UIKit
 
 class MainViewController: UIViewController {
   
-  //private var dict: [IndexPath: TableRow] = [IndexPath(row: 0, section: 0) : TableRow()]
   private var arr: [TableRow] = [TableRow()]
   
   private lazy var tableView: UITableView = {
@@ -61,17 +60,26 @@ extension MainViewController: TableViewCellDelegate {
     arr[indexPath.row] = tableRow
     let newTableRow = TableRow(text: "", isListed: tableRow.isListed, isChecked: false)
     arr.append(newTableRow)
-    let newIndexPath = IndexPath(row: indexPath.row + 1, section: 0)
+    let nextIndexPath = IndexPath(row: indexPath.row + 1, section: 0)
     tableView.beginUpdates()
-    tableView.insertRows(at: [newIndexPath], with: .automatic)
+    tableView.insertRows(at: [nextIndexPath], with: .none)
     tableView.endUpdates()
+    
+    if let nextCell = tableView.cellForRow(at: nextIndexPath) as? TableViewCell {
+      nextCell.textViewBecomeFirstResponder()
+    }
   }
   
   func deleteCell(indexPath: IndexPath) {
     arr.remove(at: indexPath.row)
     tableView.beginUpdates()
-    tableView.deleteRows(at: [indexPath], with: .automatic)
+    tableView.deleteRows(at: [indexPath], with: .none)
     tableView.endUpdates()
+    
+    let prevIndexPath = IndexPath(row: indexPath.row - 1, section: 0)
+    if let prevCell = tableView.cellForRow(at: prevIndexPath) as? TableViewCell {
+      prevCell.textViewBecomeFirstResponder()
+    }
   }
   
   func didSizeChanged() {

@@ -45,6 +45,10 @@ class TableViewCell: UITableViewCell {
     return button
   }()
   
+  public func textViewBecomeFirstResponder() {
+    self.customTextView.becomeFirstResponder()
+  }
+  
   func configure(indexPath: IndexPath, tableRow: TableRow) {
     selectionStyle = .none
     self.indexPath = indexPath
@@ -85,7 +89,7 @@ class TableViewCell: UITableViewCell {
   }
   
   @objc func toggleCheck() {
-    
+    print(Thread.isMainThread)
     tableRow.isChecked = !tableRow.isChecked
     configCheckMode()
   }
