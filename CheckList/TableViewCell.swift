@@ -74,7 +74,6 @@ class TableViewCell: UITableViewCell {
     } else {
       bulletButton.removeFromSuperview()
       customTextView.textContainer.exclusionPaths = []
-      customTextView.text = ""
     }
     //layoutIfNeeded()
   }
@@ -139,6 +138,7 @@ extension TableViewCell: UITextViewDelegate {
       !tableRow.isListed {
       textView.text = ""
       setListMode(listMode: true)
+      return false
     }
     
     //백스페이스
@@ -146,8 +146,10 @@ extension TableViewCell: UITextViewDelegate {
       if tableRow.isListed {
         textView.text = getTextWithBullet(currentText: newTextString)
         setListMode(listMode: false)
+        return false
       } else {
         didEscapeFromCell(isAdded: false)
+        return false
       }
     }
     
