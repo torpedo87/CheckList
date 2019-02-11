@@ -67,16 +67,21 @@ class ShortcutCell: UITableViewCell {
   }
   
   public func getShortcut() -> Shortcut? {
-    guard let bullet = bulletTextField.text, bullet.trimmingCharacters(in: .whitespaces).count > 0 else { return nil }
-    guard let unChecked = unCheckedTextField.text, unChecked.trimmingCharacters(in: .whitespaces).count > 0 else { return nil }
-    guard let checked = checkedTextField.text, checked.trimmingCharacters(in: .whitespaces).count > 0 else { return nil }
+    guard let bullet = bulletTextField.text,
+      bullet.trimmingCharacters(in: .whitespaces).count > 0 else { return nil }
+    guard let unChecked = unCheckedTextField.text,
+      unChecked.trimmingCharacters(in: .whitespaces).count > 0 else { return nil }
+    guard let checked = checkedTextField.text,
+      checked.trimmingCharacters(in: .whitespaces).count > 0 else { return nil }
     return Shortcut(bullet: bullet, unChecked: unChecked, checked: checked)
   }
 }
 
 extension ShortcutCell: UITextFieldDelegate {
   
-  func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+  func textField(_ textField: UITextField,
+                 shouldChangeCharactersIn range: NSRange,
+                 replacementString string: String) -> Bool {
     let maxLength = 1
     guard let text = textField.text else { return true }
     let count = text.count + string.count - range.length

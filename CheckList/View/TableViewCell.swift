@@ -24,8 +24,8 @@ class TableViewCell: UITableViewCell {
   var checked: String = "v"
   var unChecked: String = "ㅁ"
   
-  private lazy var customTextView: CustomTextView = {
-    let textView = CustomTextView()
+  private lazy var customTextView: UITextView = {
+    let textView = UITextView()
     textView.translatesAutoresizingMaskIntoConstraints = false
     textView.isScrollEnabled = false
     textView.delegate = self
@@ -109,9 +109,11 @@ class TableViewCell: UITableViewCell {
       .font: font,
       .textEffect: NSAttributedString.TextEffectStyle.letterpressStyle]
     if isChecked {
-      attributes.updateValue(NSUnderlineStyle.single.rawValue, forKey: NSAttributedString.Key.strikethroughStyle)
+      attributes.updateValue(NSUnderlineStyle.single.rawValue,
+                             forKey: NSAttributedString.Key.strikethroughStyle)
     }
-    customTextView.attributedText = NSAttributedString(string: customTextView.text, attributes: attributes)
+    customTextView.attributedText = NSAttributedString(string: customTextView.text,
+                                                       attributes: attributes)
   }
   
   private func updateTableRowText() {
@@ -129,7 +131,8 @@ extension TableViewCell: UITextViewDelegate {
   
   func textViewDidChange(_ textView: UITextView) {
     let size = textView.bounds.size
-    let newSize = textView.sizeThatFits(CGSize(width: size.width, height: CGFloat.greatestFiniteMagnitude))
+    let newSize = textView.sizeThatFits(CGSize(width: size.width,
+                                               height: CGFloat.greatestFiniteMagnitude))
     
     if size.height != newSize.height {
       delegate?.didSizeChanged()
@@ -143,8 +146,8 @@ extension TableViewCell: UITextViewDelegate {
     let newTextString = textString.replacingCharacters(in: range, with: text)
     
     //처음 리스트 진입
-    if newTextString.prefix(customTextView.bulletWithIndent.count) ==
-      "\(customTextView.bulletWithIndent)" &&
+    if newTextString.prefix(bullet.count + 1) ==
+      "\(bullet) " &&
       !newTextString.trimmingCharacters(in: .whitespaces).isEmpty &&
       !tableRow.isListed {
       textView.text = ""
@@ -180,7 +183,7 @@ extension TableViewCell: UITextViewDelegate {
   }
   
   private func getTextWithBullet(currentText: String) -> String {
-    return customTextView.bullet + currentText
+    return bullet + currentText
   }
   
   private func didEscapeFromCell(isAdded: Bool) {

@@ -49,7 +49,8 @@ class SettingViewController: UIViewController {
   private lazy var tableView: UITableView = {
     let table = UITableView()
     table.translatesAutoresizingMaskIntoConstraints = false
-    table.register(ShortcutCell.self, forCellReuseIdentifier: ShortcutCell.reuseIdentifier)
+    table.register(ShortcutCell.self,
+                   forCellReuseIdentifier: ShortcutCell.reuseIdentifier)
     table.dataSource = self
     return table
   }()
