@@ -69,7 +69,7 @@ class TableViewCell: UITableViewCell {
     tableRow.isListed = listMode
     if listMode {
       customTextView.addSubview(bulletButton)
-      bulletButton.setTitle(bullet, for: UIControl.State.normal)
+      bulletButton.setTitle(unChecked, for: UIControl.State.normal)
       customTextView.textContainer.exclusionPaths = [UIBezierPath(rect: bulletButton.frame)]
     } else {
       bulletButton.removeFromSuperview()

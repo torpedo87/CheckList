@@ -11,7 +11,6 @@ import UIKit
 class MainViewController: UIViewController {
   
   private var arr: [TableRow] = [TableRow()]
-  
   private lazy var tableView: UITableView = {
     let table = UITableView()
     table.translatesAutoresizingMaskIntoConstraints = false
@@ -22,9 +21,19 @@ class MainViewController: UIViewController {
     return table
   }()
   
+  private lazy var leftBarButtonItem: UIBarButtonItem = {
+    let item = UIBarButtonItem(title: "setting",
+                               style: UIBarButtonItem.Style.plain,
+                               target: self,
+                               action: #selector(goToSetting))
+    return item
+  }()
+  
   override func viewDidLoad() {
     super.viewDidLoad()
+    title = "memo"
     view.backgroundColor = .white
+    navigationItem.leftBarButtonItem = leftBarButtonItem
     view.addSubview(tableView)
     
     tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
@@ -33,6 +42,10 @@ class MainViewController: UIViewController {
     tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
   }
   
+  @objc func goToSetting() {
+    let settingViewController = SettingViewController()
+    navigationController?.pushViewController(settingViewController, animated: true)
+  }
 }
 
 extension MainViewController: UITableViewDataSource {
