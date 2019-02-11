@@ -8,8 +8,7 @@
 
 import Foundation
 
-struct Shortcut {
-  
+struct Shortcut: Codable {
   var bullet: String
   var unChecked: String
   var checked: String

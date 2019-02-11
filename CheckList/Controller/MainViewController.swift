@@ -18,6 +18,7 @@ class MainViewController: UIViewController {
     table.dataSource = self
     table.rowHeight = UITableView.automaticDimension
     table.estimatedRowHeight = 44
+    table.separatorStyle = .none
     return table
   }()
   
@@ -44,6 +45,7 @@ class MainViewController: UIViewController {
   
   @objc func goToSetting() {
     let settingViewController = SettingViewController()
+    settingViewController.delegate = self
     navigationController?.pushViewController(settingViewController, animated: true)
   }
 }
@@ -102,4 +104,10 @@ extension MainViewController: TableViewCellDelegate {
     UIView.setAnimationsEnabled(true)
   }
   
+}
+
+extension MainViewController: ShortcutDelegate {
+  func shortcutDidChange() {
+    tableView.reloadData()
+  }
 }

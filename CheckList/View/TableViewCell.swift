@@ -27,7 +27,6 @@ class TableViewCell: UITableViewCell {
   private lazy var customTextView: CustomTextView = {
     let textView = CustomTextView()
     textView.translatesAutoresizingMaskIntoConstraints = false
-    textView.backgroundColor = UIColor.yellow
     textView.isScrollEnabled = false
     textView.delegate = self
     textView.font = UIFont.preferredFont(forTextStyle: .body)
@@ -37,7 +36,7 @@ class TableViewCell: UITableViewCell {
   private lazy var bulletButton: UIButton = {
     let button = UIButton()
     button.translatesAutoresizingMaskIntoConstraints = false
-    button.backgroundColor = UIColor.green
+    button.setTitleColor(UIColor.black, for: UIControl.State.normal)
     button.setTitle(unChecked, for: .normal)
     button.setTitle(checked, for: UIControl.State.selected)
     button.addTarget(self, action: #selector(toggleCheck), for: .touchUpInside)
@@ -50,19 +49,29 @@ class TableViewCell: UITableViewCell {
   }
   
   func configure(indexPath: IndexPath, tableRow: TableRow) {
+    fetchShorcut()
     selectionStyle = .none
     self.indexPath = indexPath
     self.tableRow = tableRow
-    
     addSubview(customTextView)
     setListMode(listMode: tableRow.isListed)
     configCheckMode()
-    
     customTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5).isActive = true
     customTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5).isActive = true
     customTextView.topAnchor.constraint(equalTo: topAnchor, constant: 5).isActive = true
     customTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5).isActive = true
     customTextView.becomeFirstResponder()
+  }
+  
+  func fetchShorcut() {
+    if let savedShortcut = UserDefaults.standard.object(forKey: "shortcut") as? Data {
+      let decoder = JSONDecoder()
+      if let loadedShortcut = try? decoder.decode(Shortcut.self, from: savedShortcut) {
+        self.bullet = loadedShortcut.bullet
+        self.unChecked = loadedShortcut.unChecked
+        self.checked = loadedShortcut.checked
+      }
+    }
   }
   
   func setListMode(listMode: Bool) {
@@ -88,7 +97,6 @@ class TableViewCell: UITableViewCell {
   }
   
   @objc func toggleCheck() {
-    print(Thread.isMainThread)
     tableRow.isChecked = !tableRow.isChecked
     configCheckMode()
   }
@@ -96,10 +104,13 @@ class TableViewCell: UITableViewCell {
   private func setAttrbutedString(isChecked: Bool) {
     let font = UIFont.preferredFont(forTextStyle: .body)
     let textColor = isChecked ? UIColor.lightGray : UIColor.black
-    let attributes: [NSAttributedString.Key: Any] = [
+    var attributes: [NSAttributedString.Key: Any] = [
       .foregroundColor: textColor,
       .font: font,
       .textEffect: NSAttributedString.TextEffectStyle.letterpressStyle]
+    if isChecked {
+      attributes.updateValue(NSUnderlineStyle.single.rawValue, forKey: NSAttributedString.Key.strikethroughStyle)
+    }
     customTextView.attributedText = NSAttributedString(string: customTextView.text, attributes: attributes)
   }
   
@@ -156,7 +167,7 @@ extension TableViewCell: UITextViewDelegate {
     //enter
     if newTextString.last == "\n" {
       
-      if tableRow.isListed && textString == " " {
+      if tableRow.isListed && textString == "" {
         setListMode(listMode: false)
         return false
       } else {

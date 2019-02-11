@@ -65,6 +65,13 @@ class ShortcutCell: UITableViewCell {
     stackView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
     
   }
+  
+  public func getShortcut() -> Shortcut? {
+    guard let bullet = bulletTextField.text, bullet.trimmingCharacters(in: .whitespaces).count > 0 else { return nil }
+    guard let unChecked = unCheckedTextField.text, unChecked.trimmingCharacters(in: .whitespaces).count > 0 else { return nil }
+    guard let checked = checkedTextField.text, checked.trimmingCharacters(in: .whitespaces).count > 0 else { return nil }
+    return Shortcut(bullet: bullet, unChecked: unChecked, checked: checked)
+  }
 }
 
 extension ShortcutCell: UITextFieldDelegate {

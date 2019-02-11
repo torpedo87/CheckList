@@ -8,10 +8,14 @@
 
 import UIKit
 
+protocol ShortcutDelegate {
+  func shortcutDidChange()
+}
+
 class SettingViewController: UIViewController {
   
-  var shortcuts: [Shortcut] = [Shortcut(bullet: "-", unChecked: "O", checked: "V")]
-  
+  var shortcut: Shortcut = Shortcut(bullet: "", unChecked: "", checked: "")
+  var delegate: ShortcutDelegate?
   private lazy var bulletLabel: UILabel = {
     let label = UILabel()
     label.text = "단축키"
@@ -62,13 +66,15 @@ class SettingViewController: UIViewController {
     let item = UIBarButtonItem(title: "save",
                                style: UIBarButtonItem.Style.plain,
                                target: self,
-                               action: #selector())
+                               action: #selector(saveShorcuts))
     return item
   }()
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    fetchShorcut()
     title = "emoji checklist"
+    navigationItem.rightBarButtonItem = rightBarButtonItem
     view.addSubview(headerView)
     view.addSubview(tableView)
     
@@ -98,7 +104,26 @@ class SettingViewController: UIViewController {
     stackView.bottomAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
   }
   
+  func fetchShorcut() {
+    
+    if let savedShortcut = UserDefaults.standard.object(forKey: "shortcut") as? Data {
+      let decoder = JSONDecoder()
+      if let loadedShortcut = try? decoder.decode(Shortcut.self, from: savedShortcut) {
+        self.shortcut = loadedShortcut
+        self.tableView.reloadData()
+      }
+    }
+  }
+  
   @objc func saveShorcuts() {
+    let cell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ShortcutCell
+    if let shortcut = cell.getShortcut() {
+      let encoder = JSONEncoder()
+      if let encoded = try? encoder.encode(shortcut) {
+        UserDefaults.standard.set(encoded, forKey: "shortcut")
+        delegate?.shortcutDidChange()
+      }
+    }
     
   }
 }
@@ -106,13 +131,12 @@ class SettingViewController: UIViewController {
 extension SettingViewController: UITableViewDataSource {
   
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return shortcuts.count
+    return 1
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     if let cell = tableView.dequeueReusableCell(withIdentifier: ShortcutCell.reuseIdentifier,
                                                 for: indexPath) as? ShortcutCell {
-      let shortcut = shortcuts[indexPath.row]
       cell.configure(shortcut: shortcut)
       return cell
     }
