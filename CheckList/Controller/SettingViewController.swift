@@ -67,7 +67,7 @@ class SettingViewController: UIViewController {
     let item = UIBarButtonItem(title: "save",
                                style: UIBarButtonItem.Style.plain,
                                target: self,
-                               action: #selector(saveShorcuts))
+                               action: #selector(saveShorcut))
     return item
   }()
   
@@ -116,7 +116,7 @@ class SettingViewController: UIViewController {
     }
   }
   
-  @objc func saveShorcuts() {
+  @objc func saveShorcut() {
     let cell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ShortcutCell
     if let shortcut = cell.getShortcut() {
       let encoder = JSONEncoder()

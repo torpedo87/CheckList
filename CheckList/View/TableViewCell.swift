@@ -48,11 +48,13 @@ class TableViewCell: UITableViewCell {
     self.customTextView.becomeFirstResponder()
   }
   
-  func configure(indexPath: IndexPath, tableRow: TableRow) {
-    fetchShorcut()
+  func configure(indexPath: IndexPath, tableRow: TableRow, shortcut: Shortcut) {
     selectionStyle = .none
     self.indexPath = indexPath
     self.tableRow = tableRow
+    self.bullet = shortcut.bullet
+    self.unChecked = shortcut.unChecked
+    self.checked = shortcut.checked
     addSubview(customTextView)
     setListMode(listMode: tableRow.isListed)
     configCheckMode()
@@ -61,17 +63,6 @@ class TableViewCell: UITableViewCell {
     customTextView.topAnchor.constraint(equalTo: topAnchor, constant: 5).isActive = true
     customTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5).isActive = true
     customTextView.becomeFirstResponder()
-  }
-  
-  func fetchShorcut() {
-    if let savedShortcut = UserDefaults.standard.object(forKey: "shortcut") as? Data {
-      let decoder = JSONDecoder()
-      if let loadedShortcut = try? decoder.decode(Shortcut.self, from: savedShortcut) {
-        self.bullet = loadedShortcut.bullet
-        self.unChecked = loadedShortcut.unChecked
-        self.checked = loadedShortcut.checked
-      }
-    }
   }
   
   func setListMode(listMode: Bool) {
