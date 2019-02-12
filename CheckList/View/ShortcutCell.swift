@@ -11,7 +11,6 @@ import UIKit
 class ShortcutCell: UITableViewCell {
   
   static let reuseIdentifier = "ShortcutCell"
-  
   lazy var bulletTextField: UITextField = {
     let textField = UITextField()
     textField.delegate = self
@@ -49,21 +48,19 @@ class ShortcutCell: UITableViewCell {
   }()
   
   func configure(shortcut: Shortcut) {
+    selectionStyle = .none
     bulletTextField.text = shortcut.bullet
     unCheckedTextField.text = shortcut.unChecked
     checkedTextField.text = shortcut.checked
     
     addSubview(stackView)
-    
     stackView.addArrangedSubview(bulletTextField)
     stackView.addArrangedSubview(unCheckedTextField)
     stackView.addArrangedSubview(checkedTextField)
-    
     stackView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
     stackView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
     stackView.topAnchor.constraint(equalTo: topAnchor).isActive = true
     stackView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-    
   }
   
   public func getShortcut() -> Shortcut? {

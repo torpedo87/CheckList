@@ -40,16 +40,21 @@ class MainViewController: UIViewController {
     navigationItem.leftBarButtonItem = leftBarButtonItem
     view.addSubview(tableView)
     
-    tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-    tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
-    tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
-    tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+    tableView.topAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.topAnchor).isActive = true
+    tableView.leadingAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.leadingAnchor).isActive = true
+    tableView.trailingAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.trailingAnchor).isActive = true
+    tableView.bottomAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.bottomAnchor).isActive = true
   }
   
   @objc func pushSettingViewController() {
     let settingViewController = SettingViewController()
     settingViewController.delegate = self
-    navigationController?.pushViewController(settingViewController, animated: true)
+    navigationController?.pushViewController(settingViewController,
+                                             animated: true)
   }
   
   func fetchShorcuts() -> [Shortcut] {
@@ -66,7 +71,8 @@ class MainViewController: UIViewController {
 
 extension MainViewController: UITableViewDataSource {
   
-  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  func tableView(_ tableView: UITableView,
+                 numberOfRowsInSection section: Int) -> Int {
     return arr.count
   }
   
@@ -88,7 +94,9 @@ extension MainViewController: TableViewCellDelegate {
   func addNextCell(indexPath: IndexPath, tableRow: TableRow) {
     
     arr[indexPath.row] = tableRow
-    let newTableRow = TableRow(text: "", listState: tableRow.listState, isChecked: false)
+    let newTableRow = TableRow(text: "",
+                               listState: tableRow.listState,
+                               isChecked: false)
     arr.append(newTableRow)
     let nextIndexPath = IndexPath(row: indexPath.row + 1, section: 0)
     tableView.beginUpdates()

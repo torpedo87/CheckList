@@ -63,10 +63,14 @@ class TableViewCell: UITableViewCell {
     }
     
     configCheckMode()
-    customTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5).isActive = true
-    customTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5).isActive = true
-    customTextView.topAnchor.constraint(equalTo: topAnchor, constant: 5).isActive = true
-    customTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5).isActive = true
+    customTextView.leadingAnchor.constraint(equalTo:
+      leadingAnchor, constant: 5).isActive = true
+    customTextView.trailingAnchor.constraint(equalTo:
+      trailingAnchor, constant: -5).isActive = true
+    customTextView.topAnchor.constraint(equalTo:
+      topAnchor, constant: 5).isActive = true
+    customTextView.bottomAnchor.constraint(equalTo:
+      bottomAnchor, constant: -5).isActive = true
     customTextView.becomeFirstResponder()
   }
   
@@ -77,7 +81,8 @@ class TableViewCell: UITableViewCell {
     case .list(let prevShortcut):
       self.currentShortcut = prevShortcut
       customTextView.addSubview(bulletButton)
-      bulletButton.setTitle(currentShortcut.unChecked, for: UIControl.State.normal)
+      bulletButton.setTitle(currentShortcut.unChecked,
+                            for: UIControl.State.normal)
       customTextView.textContainer.exclusionPaths = [UIBezierPath(rect: bulletButton.frame)]
     case .none:
       bulletButton.removeFromSuperview()

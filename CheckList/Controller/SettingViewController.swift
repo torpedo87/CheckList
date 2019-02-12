@@ -51,6 +51,7 @@ class SettingViewController: UIViewController {
     table.translatesAutoresizingMaskIntoConstraints = false
     table.register(ShortcutCell.self,
                    forCellReuseIdentifier: ShortcutCell.reuseIdentifier)
+    table.rowHeight = 50
     table.dataSource = self
     return table
   }()
@@ -94,15 +95,22 @@ class SettingViewController: UIViewController {
     view.addSubview(tableView)
     view.addSubview(addButton)
     
-    headerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
-    headerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
-    headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+    headerView.leadingAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.leadingAnchor).isActive = true
+    headerView.trailingAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.trailingAnchor).isActive = true
+    headerView.topAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.topAnchor).isActive = true
     headerView.heightAnchor.constraint(equalToConstant: 44).isActive = true
     
-    tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
-    tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
-    tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
-    tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+    tableView.topAnchor.constraint(equalTo:
+      headerView.bottomAnchor).isActive = true
+    tableView.leadingAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.leadingAnchor).isActive = true
+    tableView.trailingAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.trailingAnchor).isActive = true
+    tableView.bottomAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.bottomAnchor).isActive = true
     
     headerView.addSubview(bulletLabel)
     headerView.addSubview(unCheckedLabel)
@@ -113,21 +121,28 @@ class SettingViewController: UIViewController {
     stackView.addArrangedSubview(unCheckedLabel)
     stackView.addArrangedSubview(checkedLabel)
     
-    stackView.leadingAnchor.constraint(equalTo: headerView.leadingAnchor).isActive = true
-    stackView.trailingAnchor.constraint(equalTo: headerView.trailingAnchor).isActive = true
-    stackView.topAnchor.constraint(equalTo: headerView.topAnchor).isActive = true
-    stackView.bottomAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
+    stackView.leadingAnchor.constraint(equalTo:
+      headerView.leadingAnchor).isActive = true
+    stackView.trailingAnchor.constraint(equalTo:
+      headerView.trailingAnchor).isActive = true
+    stackView.topAnchor.constraint(equalTo:
+      headerView.topAnchor).isActive = true
+    stackView.bottomAnchor.constraint(equalTo:
+      headerView.bottomAnchor).isActive = true
     
     addButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
     addButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-    addButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
-    addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10).isActive = true
+    addButton.trailingAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
+    addButton.bottomAnchor.constraint(equalTo:
+      view.safeAreaLayoutGuide.bottomAnchor, constant: -10).isActive = true
   }
   
   func fetchShorcuts() -> [Shortcut] {
     
     if let shortcutsData = UserDefaults.standard.object(forKey: "shortcuts") as? Data {
-      if let loadedShortcuts = try? JSONDecoder().decode([Shortcut].self, from: shortcutsData) {
+      if let loadedShortcuts = try? JSONDecoder().decode([Shortcut].self,
+                                                         from: shortcutsData) {
         return loadedShortcuts
       }
     }
@@ -137,7 +152,8 @@ class SettingViewController: UIViewController {
   @objc func saveShorcuts() {
     var shortcutArr = [Shortcut]()
     for index in 0..<shortcuts.count {
-      let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0)) as! ShortcutCell
+      let cell = tableView.cellForRow(at: IndexPath(row: index,
+                                                    section: 0)) as! ShortcutCell
       if let shortcut = cell.getShortcut() {
         shortcutArr.append(shortcut)
       }
@@ -160,11 +176,13 @@ class SettingViewController: UIViewController {
 
 extension SettingViewController: UITableViewDataSource {
   
-  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  func tableView(_ tableView: UITableView,
+                 numberOfRowsInSection section: Int) -> Int {
     return shortcuts.count
   }
   
-  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+  func tableView(_ tableView: UITableView,
+                 cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     if let cell = tableView.dequeueReusableCell(withIdentifier: ShortcutCell.reuseIdentifier,
                                                 for: indexPath) as? ShortcutCell {
       let shortcut = shortcuts[indexPath.row]
@@ -174,5 +192,13 @@ extension SettingViewController: UITableViewDataSource {
     return UITableViewCell()
   }
   
-  
+  func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    if editingStyle == .delete {
+      shortcuts.remove(at: indexPath.row)
+      tableView.beginUpdates()
+      tableView.deleteRows(at: [indexPath], with: .none)
+      tableView.endUpdates()
+      saveShorcuts()
+    }
+  }
 }
