@@ -9,7 +9,7 @@
 import Foundation
 
 struct Shortcut: Codable {
-  var bullet: String
-  var unChecked: String
-  var checked: String
+  var bullet: String = "-"
+  var unChecked: String = "O"
+  var checked: String = "X"
 }

@@ -8,8 +8,26 @@
 
 import Foundation
 
+enum ListState {
+  case list(Shortcut)
+  case none
+}
+
+extension ListState: Equatable {
+  static func == (lhs: ListState, rhs: ListState) -> Bool {
+    switch (lhs, rhs) {
+    case (.none, .none):
+      return true
+    case (.list, .list):
+      return true
+    default:
+      return false
+    }
+  }
+}
+
 struct TableRow {
   var text: String = ""
-  var isListed: Bool = false
+  var listState: ListState = .none
   var isChecked: Bool = false
 }

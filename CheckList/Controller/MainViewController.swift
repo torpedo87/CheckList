@@ -9,12 +9,13 @@
 import UIKit
 
 class MainViewController: UIViewController {
-  var shortcut: Shortcut = Shortcut(bullet: "", unChecked: "", checked: "")
+  private var shortcuts: [Shortcut] = []
   private var arr: [TableRow] = [TableRow()]
   private lazy var tableView: UITableView = {
     let table = UITableView()
     table.translatesAutoresizingMaskIntoConstraints = false
-    table.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.reuseIdentifier)
+    table.register(TableViewCell.self,
+                   forCellReuseIdentifier: TableViewCell.reuseIdentifier)
     table.dataSource = self
     table.rowHeight = UITableView.automaticDimension
     table.estimatedRowHeight = 44
@@ -32,9 +33,8 @@ class MainViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    if let loadedShortcut = fetchShorcut() {
-      self.shortcut = loadedShortcut
-    }
+    view.backgroundColor = .white
+    self.shortcuts = fetchShorcuts()
     title = "memo"
     view.backgroundColor = .white
     navigationItem.leftBarButtonItem = leftBarButtonItem
@@ -52,15 +52,15 @@ class MainViewController: UIViewController {
     navigationController?.pushViewController(settingViewController, animated: true)
   }
   
-  func fetchShorcut() -> Shortcut? {
+  func fetchShorcuts() -> [Shortcut] {
     
-    if let savedShortcut = UserDefaults.standard.object(forKey: "shortcut") as? Data {
-      let decoder = JSONDecoder()
-      if let loadedShortcut = try? decoder.decode(Shortcut.self, from: savedShortcut) {
-        return loadedShortcut
+    if let shortcutsData = UserDefaults.standard.object(forKey: "shortcuts") as? Data {
+      if let loadedShortcuts = try? JSONDecoder().decode([Shortcut].self,
+                                                         from: shortcutsData) {
+        return loadedShortcuts
       }
     }
-    return nil
+    return []
   }
 }
 
@@ -75,7 +75,7 @@ extension MainViewController: UITableViewDataSource {
     if let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier,
                                                 for: indexPath) as? TableViewCell {
       let tableRow = arr[indexPath.row]
-      cell.configure(indexPath: indexPath, tableRow: tableRow, shortcut: shortcut)
+      cell.configure(indexPath: indexPath, tableRow: tableRow, shortcuts: shortcuts)
       cell.delegate = self
       return cell
     }
@@ -88,7 +88,7 @@ extension MainViewController: TableViewCellDelegate {
   func addNextCell(indexPath: IndexPath, tableRow: TableRow) {
     
     arr[indexPath.row] = tableRow
-    let newTableRow = TableRow(text: "", isListed: tableRow.isListed, isChecked: false)
+    let newTableRow = TableRow(text: "", listState: tableRow.listState, isChecked: false)
     arr.append(newTableRow)
     let nextIndexPath = IndexPath(row: indexPath.row + 1, section: 0)
     tableView.beginUpdates()
@@ -123,9 +123,7 @@ extension MainViewController: TableViewCellDelegate {
 
 extension MainViewController: ShortcutDelegate {
   func shortcutDidChange() {
-    if let loadedShortcut = fetchShorcut() {
-      self.shortcut = loadedShortcut
-      self.tableView.reloadData()
-    }
+    self.shortcuts = fetchShorcuts()
+    self.tableView.reloadData()
   }
 }

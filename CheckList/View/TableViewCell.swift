@@ -20,9 +20,8 @@ class TableViewCell: UITableViewCell {
   
   var indexPath: IndexPath!
   var tableRow: TableRow!
-  var bullet: String = "-"
-  var checked: String = "v"
-  var unChecked: String = "ㅁ"
+  var shortcuts: [Shortcut] = []
+  var currentShortcut = Shortcut()
   
   private lazy var customTextView: UITextView = {
     let textView = UITextView()
@@ -37,8 +36,8 @@ class TableViewCell: UITableViewCell {
     let button = UIButton()
     button.translatesAutoresizingMaskIntoConstraints = false
     button.setTitleColor(UIColor.black, for: UIControl.State.normal)
-    button.setTitle(unChecked, for: .normal)
-    button.setTitle(checked, for: UIControl.State.selected)
+    button.setTitle(currentShortcut.unChecked, for: .normal)
+    button.setTitle(currentShortcut.checked, for: UIControl.State.selected)
     button.addTarget(self, action: #selector(toggleCheck), for: .touchUpInside)
     button.sizeToFit()
     return button
@@ -48,15 +47,21 @@ class TableViewCell: UITableViewCell {
     self.customTextView.becomeFirstResponder()
   }
   
-  func configure(indexPath: IndexPath, tableRow: TableRow, shortcut: Shortcut) {
+  func configure(indexPath: IndexPath, tableRow: TableRow, shortcuts: [Shortcut]) {
     selectionStyle = .none
     self.indexPath = indexPath
     self.tableRow = tableRow
-    self.bullet = shortcut.bullet
-    self.unChecked = shortcut.unChecked
-    self.checked = shortcut.checked
+    self.shortcuts = shortcuts
     addSubview(customTextView)
-    setListMode(listMode: tableRow.isListed)
+    setListMode(listState: tableRow.listState)
+    
+    switch tableRow.listState {
+    case .list(let prevShortcut):
+      self.currentShortcut = prevShortcut
+    case .none:
+      break
+    }
+    
     configCheckMode()
     customTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5).isActive = true
     customTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5).isActive = true
@@ -65,24 +70,26 @@ class TableViewCell: UITableViewCell {
     customTextView.becomeFirstResponder()
   }
   
-  func setListMode(listMode: Bool) {
-    tableRow.isListed = listMode
-    if listMode {
+  func setListMode(listState: ListState) {
+    
+    tableRow.listState = listState
+    switch listState {
+    case .list(let prevShortcut):
+      self.currentShortcut = prevShortcut
       customTextView.addSubview(bulletButton)
-      bulletButton.setTitle(unChecked, for: UIControl.State.normal)
+      bulletButton.setTitle(currentShortcut.unChecked, for: UIControl.State.normal)
       customTextView.textContainer.exclusionPaths = [UIBezierPath(rect: bulletButton.frame)]
-    } else {
+    case .none:
       bulletButton.removeFromSuperview()
       customTextView.textContainer.exclusionPaths = []
     }
-    //layoutIfNeeded()
   }
   
   func configCheckMode() {
     if tableRow.isChecked {
-      bulletButton.setTitle(checked, for: .normal)
+      bulletButton.setTitle(currentShortcut.checked, for: .normal)
     } else {
-      bulletButton.setTitle(unChecked, for: .normal)
+      bulletButton.setTitle(currentShortcut.unChecked, for: .normal)
     }
     setAttrbutedString(isChecked: tableRow.isChecked)
   }
@@ -137,20 +144,25 @@ extension TableViewCell: UITextViewDelegate {
     let newTextString = textString.replacingCharacters(in: range, with: text)
     
     //처음 리스트 진입
-    if newTextString.prefix(bullet.count + 1) ==
-      "\(bullet) " &&
+    shortcuts.forEach { shortcut in
+      if newTextString.prefix(1) == shortcut.bullet {
+        self.currentShortcut = shortcut
+      }
+    }
+    if newTextString.prefix(currentShortcut.bullet.count + 1) ==
+      "\(currentShortcut.bullet) " &&
       !newTextString.trimmingCharacters(in: .whitespaces).isEmpty &&
-      !tableRow.isListed {
+      tableRow.listState == .none {
       textView.text = ""
-      setListMode(listMode: true)
+      setListMode(listState: .list(currentShortcut))
       return false
     }
     
     //백스페이스
     if textString == "" && newTextString == "" {
-      if tableRow.isListed {
+      if tableRow.listState == .list(currentShortcut) {
         textView.text = getTextWithBullet(currentText: newTextString)
-        setListMode(listMode: false)
+        setListMode(listState: .none)
         return false
       } else {
         didEscapeFromCell(isAdded: false)
@@ -161,8 +173,8 @@ extension TableViewCell: UITextViewDelegate {
     //enter
     if newTextString.last == "\n" {
       
-      if tableRow.isListed && textString == "" {
-        setListMode(listMode: false)
+      if tableRow.listState == .list(currentShortcut) && textString == "" {
+        setListMode(listState: .none)
         return false
       } else {
         didEscapeFromCell(isAdded: true)
@@ -174,7 +186,7 @@ extension TableViewCell: UITextViewDelegate {
   }
   
   private func getTextWithBullet(currentText: String) -> String {
-    return bullet + currentText
+    return currentShortcut.bullet + currentText
   }
   
   private func didEscapeFromCell(isAdded: Bool) {
