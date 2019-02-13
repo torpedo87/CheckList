@@ -68,7 +68,7 @@ class SettingViewController: UIViewController {
     let item = UIBarButtonItem(title: "save",
                                style: UIBarButtonItem.Style.plain,
                                target: self,
-                               action: #selector(saveShorcuts))
+                               action: #selector(saveButtonDidTap))
     return item
   }()
   
@@ -149,7 +149,7 @@ class SettingViewController: UIViewController {
     return []
   }
   
-  @objc func saveShorcuts() {
+  func saveShorcuts() {
     var shortcutArr = [Shortcut]()
     for index in 0..<shortcuts.count {
       let cell = tableView.cellForRow(at: IndexPath(row: index,
@@ -172,6 +172,23 @@ class SettingViewController: UIViewController {
     tableView.insertRows(at: [nextIndexPath], with: .none)
     tableView.endUpdates()
   }
+  
+  @objc func saveButtonDidTap() {
+    let alert = UIAlertController(title: "Are you sure?",
+                                  message: "if you want to save, please click OK",
+                                  preferredStyle: .alert)
+    
+    let okAction = UIAlertAction(title: "OK",
+                                 style: .default,
+                                 handler: { [weak self] _ in
+                                  guard let self = self else { return }
+                                  self.saveShorcuts()
+    })
+    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+    alert.addAction(okAction)
+    alert.addAction(cancelAction)
+    self.present(alert, animated: true, completion: nil)
+  }
 }
 
 extension SettingViewController: UITableViewDataSource {
@@ -192,7 +209,9 @@ extension SettingViewController: UITableViewDataSource {
     return UITableViewCell()
   }
   
-  func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+  func tableView(_ tableView: UITableView,
+                 commit editingStyle: UITableViewCell.EditingStyle,
+                 forRowAt indexPath: IndexPath) {
     if editingStyle == .delete {
       shortcuts.remove(at: indexPath.row)
       tableView.beginUpdates()
