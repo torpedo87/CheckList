@@ -37,7 +37,6 @@ class TableViewCell: UITableViewCell {
     button.translatesAutoresizingMaskIntoConstraints = false
     button.setTitleColor(UIColor.black, for: UIControl.State.normal)
     button.setTitle(currentShortcut.unChecked, for: .normal)
-    button.setTitle(currentShortcut.checked, for: UIControl.State.selected)
     button.addTarget(self, action: #selector(toggleCheck), for: .touchUpInside)
     button.sizeToFit()
     return button
@@ -73,6 +72,7 @@ class TableViewCell: UITableViewCell {
     customTextView.bottomAnchor.constraint(equalTo:
       bottomAnchor, constant: -5).isActive = true
     customTextView.becomeFirstResponder()
+    moveCursor(textView: customTextView, offset: tableRow.cursorOffset)
   }
   
   func setListMode(listState: ListState) {
@@ -83,7 +83,7 @@ class TableViewCell: UITableViewCell {
       self.currentShortcut = prevShortcut
       customTextView.addSubview(bulletButton)
       bulletButton.setTitle(currentShortcut.unChecked,
-                            for: UIControl.State.normal)
+                            for: .normal)
       customTextView.textContainer.exclusionPaths = [UIBezierPath(rect: bulletButton.frame)]
     case .none:
       bulletButton.removeFromSuperview()
@@ -127,6 +127,7 @@ class TableViewCell: UITableViewCell {
   override func prepareForReuse() {
     super.prepareForReuse()
     self.tableRow = TableRow()
+    self.customTextView.text = nil
   }
 }
 
@@ -197,10 +198,7 @@ extension TableViewCell: UITextViewDelegate {
     if String(textString) == textView.text && String(newTextString) == textView.text {
       if tableRow.listState == .list(currentShortcut) {
         textView.text = getTextWithBullet(currentText: newTextString)
-        if let selectedRange = textView.selectedTextRange {
-          let newPosition = textView.position(from: selectedRange.start, offset: -textView.text.count + 1)!
-          textView.selectedTextRange = textView.textRange(from: newPosition, to: newPosition)
-        }
+        moveCursor(textView: textView, offset: -textView.text.count + 1)
         setListMode(listState: .none)
         return false
       } else {
@@ -210,6 +208,15 @@ extension TableViewCell: UITextViewDelegate {
     }
     
     return true
+  }
+  
+  private func moveCursor(textView: UITextView, offset: Int) {
+    if let selectedRange = textView.selectedTextRange {
+      let newPosition = textView.position(from: selectedRange.start,
+                                          offset: offset)!
+      textView.selectedTextRange = textView.textRange(from: newPosition,
+                                                      to: newPosition)
+    }
   }
   
   private func getTextWithBullet(currentText: String) -> String {

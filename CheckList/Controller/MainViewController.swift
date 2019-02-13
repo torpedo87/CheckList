@@ -96,7 +96,8 @@ extension MainViewController: TableViewCellDelegate {
     tableRows[indexPath.row] = tableRow
     let newTableRow = TableRow(text: text,
                                listState: tableRow.listState,
-                               isChecked: false)
+                               isChecked: false,
+                               cursorOffset: -text.count)
     tableRows.append(newTableRow)
     let nextIndexPath = IndexPath(row: indexPath.row + 1, section: 0)
     tableView.beginUpdates()
@@ -110,6 +111,7 @@ extension MainViewController: TableViewCellDelegate {
   
   func deleteCell(indexPath: IndexPath, text: String) {
     tableRows[indexPath.row - 1].text += text
+    tableRows[indexPath.row - 1].cursorOffset = -text.count
     tableView.reloadRows(at: [IndexPath(row: indexPath.row - 1,
                                         section: indexPath.section)],
                          with: .none)

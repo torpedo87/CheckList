@@ -30,4 +30,5 @@ struct TableRow {
   var text: String = ""
   var listState: ListState = .none
   var isChecked: Bool = false
+  var cursorOffset: Int = 0
 }
