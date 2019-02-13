@@ -10,8 +10,8 @@ import UIKit
 
 protocol TableViewCellDelegate: class {
   func didSizeChanged()
-  func addNextCell(indexPath: IndexPath, tableRow: TableRow)
-  func deleteCell(indexPath: IndexPath)
+  func addNextCell(indexPath: IndexPath, tableRow: TableRow, text: String)
+  func deleteCell(indexPath: IndexPath, text: String)
 }
 
 class TableViewCell: UITableViewCell {
@@ -53,6 +53,7 @@ class TableViewCell: UITableViewCell {
     self.tableRow = tableRow
     self.shortcuts = shortcuts
     addSubview(customTextView)
+    customTextView.text = tableRow.text
     setListMode(listState: tableRow.listState)
     
     switch tableRow.listState {
@@ -154,6 +155,7 @@ extension TableViewCell: UITextViewDelegate {
         self.currentShortcut = shortcut
       }
     }
+    
     if newTextString.prefix(currentShortcut.bullet.count + 1) ==
       "\(currentShortcut.bullet) " &&
       !newTextString.trimmingCharacters(in: .whitespaces).isEmpty &&
@@ -163,18 +165,6 @@ extension TableViewCell: UITextViewDelegate {
       return false
     }
     
-    //백스페이스
-    if textString == "" && newTextString == "" {
-      if tableRow.listState == .list(currentShortcut) {
-        textView.text = getTextWithBullet(currentText: newTextString)
-        setListMode(listState: .none)
-        return false
-      } else {
-        didEscapeFromCell(isAdded: false)
-        return false
-      }
-    }
-    
     //enter
     if newTextString.last == "\n" {
       
@@ -182,7 +172,39 @@ extension TableViewCell: UITextViewDelegate {
         setListMode(listState: .none)
         return false
       } else {
-        didEscapeFromCell(isAdded: true)
+        didEscapeFromCell(isAdded: true, text: "")
+        return false
+      }
+    }
+    
+    //cursor 가 텍스트 내에 있는 경우
+    if let selectedRange = textView.selectedTextRange {
+      let cursorPosition = textView.offset(from: textView.beginningOfDocument,
+                                           to: selectedRange.start)
+      let endPosition = textView.offset(from: textView.beginningOfDocument,
+                                        to: textView.endOfDocument)
+      if cursorPosition != endPosition {
+        //enter
+        if newTextString.last != "\n" && newTextString.contains("\n") {
+          let textArr = newTextString.components(separatedBy: "\n")
+          textView.text = textArr[0]
+          didEscapeFromCell(isAdded: true, text: textArr[1])
+        }
+      }
+    }
+    
+    //백스페이스
+    if String(textString) == textView.text && String(newTextString) == textView.text {
+      if tableRow.listState == .list(currentShortcut) {
+        textView.text = getTextWithBullet(currentText: newTextString)
+        if let selectedRange = textView.selectedTextRange {
+          let newPosition = textView.position(from: selectedRange.start, offset: -textView.text.count + 1)!
+          textView.selectedTextRange = textView.textRange(from: newPosition, to: newPosition)
+        }
+        setListMode(listState: .none)
+        return false
+      } else {
+        didEscapeFromCell(isAdded: false, text: textView.text)
         return false
       }
     }
@@ -194,12 +216,12 @@ extension TableViewCell: UITextViewDelegate {
     return currentShortcut.bullet + currentText
   }
   
-  private func didEscapeFromCell(isAdded: Bool) {
+  private func didEscapeFromCell(isAdded: Bool, text: String) {
     updateTableRowText()
     if isAdded {
-      delegate?.addNextCell(indexPath: indexPath, tableRow: tableRow)
+      delegate?.addNextCell(indexPath: indexPath, tableRow: tableRow, text: text)
     } else if indexPath.row != 0 {
-      delegate?.deleteCell(indexPath: indexPath)
+      delegate?.deleteCell(indexPath: indexPath, text: text)
     }
   }
 }
