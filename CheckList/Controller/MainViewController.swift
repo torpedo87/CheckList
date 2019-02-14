@@ -103,9 +103,13 @@ extension MainViewController: TableViewCellDelegate {
     tableView.beginUpdates()
     tableView.insertRows(at: [nextIndexPath], with: .none)
     tableView.endUpdates()
-    
     if let nextCell = tableView.cellForRow(at: nextIndexPath) as? TableViewCell {
       nextCell.textViewBecomeFirstResponder()
+    }
+    if let visibleIndexPaths = tableView.indexPathsForVisibleRows {
+      if !visibleIndexPaths.contains(nextIndexPath) {
+        tableView.scrollToRow(at: nextIndexPath, at: .none, animated: true)
+      }
     }
   }
   
@@ -122,6 +126,11 @@ extension MainViewController: TableViewCellDelegate {
     let prevIndexPath = IndexPath(row: indexPath.row - 1, section: 0)
     if let prevCell = tableView.cellForRow(at: prevIndexPath) as? TableViewCell {
       prevCell.textViewBecomeFirstResponder()
+    }
+    if let visibleIndexPaths = tableView.indexPathsForVisibleRows {
+      if !visibleIndexPaths.contains(prevIndexPath) {
+        tableView.scrollToRow(at: prevIndexPath, at: .none, animated: true)
+      }
     }
   }
   
