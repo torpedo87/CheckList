@@ -8,20 +8,9 @@
 
 import UIKit
 
-class MainViewController: UIViewController {
+class MainViewController: UITableViewController {
   private var shortcuts: [Shortcut] = []
   private var tableRows: [TableRow] = [TableRow()]
-  private lazy var tableView: UITableView = {
-    let table = UITableView()
-    table.translatesAutoresizingMaskIntoConstraints = false
-    table.register(TableViewCell.self,
-                   forCellReuseIdentifier: TableViewCell.reuseIdentifier)
-    table.dataSource = self
-    table.rowHeight = UITableView.automaticDimension
-    table.estimatedRowHeight = 44
-    table.separatorStyle = .none
-    return table
-  }()
   
   private lazy var leftBarButtonItem: UIBarButtonItem = {
     let item = UIBarButtonItem(title: "setting",
@@ -34,20 +23,16 @@ class MainViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .white
+    tableView.register(TableViewCell.self,
+                   forCellReuseIdentifier: TableViewCell.reuseIdentifier)
+    tableView.dataSource = self
+    tableView.rowHeight = UITableView.automaticDimension
+    tableView.estimatedRowHeight = 44
+    tableView.separatorStyle = .none
     self.shortcuts = fetchShorcuts()
     title = "memo"
     view.backgroundColor = .white
     navigationItem.leftBarButtonItem = leftBarButtonItem
-    view.addSubview(tableView)
-    
-    tableView.topAnchor.constraint(equalTo:
-      view.safeAreaLayoutGuide.topAnchor).isActive = true
-    tableView.leadingAnchor.constraint(equalTo:
-      view.safeAreaLayoutGuide.leadingAnchor).isActive = true
-    tableView.trailingAnchor.constraint(equalTo:
-      view.safeAreaLayoutGuide.trailingAnchor).isActive = true
-    tableView.bottomAnchor.constraint(equalTo:
-      view.safeAreaLayoutGuide.bottomAnchor).isActive = true
   }
   
   @objc func pushSettingViewController() {
@@ -69,14 +54,14 @@ class MainViewController: UIViewController {
   }
 }
 
-extension MainViewController: UITableViewDataSource {
+extension MainViewController {
   
-  func tableView(_ tableView: UITableView,
+  override func tableView(_ tableView: UITableView,
                  numberOfRowsInSection section: Int) -> Int {
     return tableRows.count
   }
   
-  func tableView(_ tableView: UITableView,
+  override func tableView(_ tableView: UITableView,
                  cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     if let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier,
                                                 for: indexPath) as? TableViewCell {
@@ -106,11 +91,6 @@ extension MainViewController: TableViewCellDelegate {
     if let nextCell = tableView.cellForRow(at: nextIndexPath) as? TableViewCell {
       nextCell.textViewBecomeFirstResponder()
     }
-    if let visibleIndexPaths = tableView.indexPathsForVisibleRows {
-      if !visibleIndexPaths.contains(nextIndexPath) {
-        tableView.scrollToRow(at: nextIndexPath, at: .none, animated: true)
-      }
-    }
   }
   
   func deleteCell(indexPath: IndexPath, text: String) {
@@ -126,11 +106,6 @@ extension MainViewController: TableViewCellDelegate {
     let prevIndexPath = IndexPath(row: indexPath.row - 1, section: 0)
     if let prevCell = tableView.cellForRow(at: prevIndexPath) as? TableViewCell {
       prevCell.textViewBecomeFirstResponder()
-    }
-    if let visibleIndexPaths = tableView.indexPathsForVisibleRows {
-      if !visibleIndexPaths.contains(prevIndexPath) {
-        tableView.scrollToRow(at: prevIndexPath, at: .none, animated: true)
-      }
     }
   }
   
