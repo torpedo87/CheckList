@@ -66,7 +66,7 @@ extension MainViewController {
     if let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier,
                                                 for: indexPath) as? TableViewCell {
       let tableRow = tableRows[indexPath.row]
-      cell.configure(indexPath: indexPath, tableRow: tableRow, shortcuts: shortcuts)
+      cell.configure(row: indexPath.row, tableRow: tableRow, shortcuts: shortcuts)
       cell.delegate = self
       return cell
     }
@@ -77,33 +77,39 @@ extension MainViewController {
 
 extension MainViewController: TableViewCellDelegate {
   
-  func addNextCell(indexPath: IndexPath, tableRow: TableRow, text: String) {
-    tableRows[indexPath.row] = tableRow
+  func addNextCell(row: Int, tableRow: TableRow, text: String) {
+    tableRows[row] = tableRow
+    
     let newTableRow = TableRow(text: text,
                                listState: tableRow.listState,
                                isChecked: false,
                                cursorOffset: -text.count)
     tableRows.append(newTableRow)
-    let nextIndexPath = IndexPath(row: indexPath.row + 1, section: 0)
+    let nextIndexPath = IndexPath(row: row + 1, section: 0)
+    
     tableView.beginUpdates()
     tableView.insertRows(at: [nextIndexPath], with: .none)
     tableView.endUpdates()
+    
     if let nextCell = tableView.cellForRow(at: nextIndexPath) as? TableViewCell {
       nextCell.textViewBecomeFirstResponder()
     }
   }
   
-  func deleteCell(indexPath: IndexPath, text: String) {
-    tableRows[indexPath.row - 1].text += text
-    tableRows[indexPath.row - 1].cursorOffset = -text.count
-    tableView.reloadRows(at: [IndexPath(row: indexPath.row - 1,
-                                        section: indexPath.section)],
-                         with: .none)
-    tableRows.remove(at: indexPath.row)
+  func deleteCell(row: Int, text: String) {
+    tableRows[row - 1].text += text
+    tableRows[row - 1].cursorOffset = -text.count
+    
+    tableRows.remove(at: row)
+    let indexPathToDelete = IndexPath(row: row, section: 0)
+    let indexPathToReload = IndexPath(row: row-1, section: 0)
+    
     tableView.beginUpdates()
-    tableView.deleteRows(at: [indexPath], with: .none)
+    tableView.deleteRows(at: [indexPathToDelete], with: .none)
+    tableView.reloadRows(at: [indexPathToReload], with: .none)
     tableView.endUpdates()
-    let prevIndexPath = IndexPath(row: indexPath.row - 1, section: 0)
+    
+    let prevIndexPath = IndexPath(row: row - 1, section: 0)
     if let prevCell = tableView.cellForRow(at: prevIndexPath) as? TableViewCell {
       prevCell.textViewBecomeFirstResponder()
     }

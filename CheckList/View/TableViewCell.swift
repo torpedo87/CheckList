@@ -10,15 +10,15 @@ import UIKit
 
 protocol TableViewCellDelegate: class {
   func didSizeChanged()
-  func addNextCell(indexPath: IndexPath, tableRow: TableRow, text: String)
-  func deleteCell(indexPath: IndexPath, text: String)
+  func addNextCell(row: Int, tableRow: TableRow, text: String)
+  func deleteCell(row: Int, text: String)
 }
 
 class TableViewCell: UITableViewCell {
   static let reuseIdentifier = "TableViewCell"
   weak var delegate: TableViewCellDelegate?
   
-  var indexPath: IndexPath!
+  var row: Int!
   var tableRow: TableRow!
   var shortcuts: [Shortcut] = []
   var currentShortcut = Shortcut()
@@ -46,13 +46,14 @@ class TableViewCell: UITableViewCell {
     self.customTextView.becomeFirstResponder()
   }
   
-  func configure(indexPath: IndexPath, tableRow: TableRow, shortcuts: [Shortcut]) {
+  func configure(row: Int, tableRow: TableRow, shortcuts: [Shortcut]) {
     selectionStyle = .none
-    self.indexPath = indexPath
+    self.row = row
     self.tableRow = tableRow
     self.shortcuts = shortcuts
     addSubview(customTextView)
     customTextView.text = tableRow.text
+    configCheckMode()
     setListMode(listState: tableRow.listState)
     
     switch tableRow.listState {
@@ -61,8 +62,12 @@ class TableViewCell: UITableViewCell {
     case .none:
       break
     }
-    
-    configCheckMode()
+    customTextView.becomeFirstResponder()
+    moveCursor(textView: customTextView, offset: tableRow.cursorOffset)
+  }
+  
+  override func layoutSubviews() {
+    super.layoutSubviews()
     customTextView.leadingAnchor.constraint(equalTo:
       leadingAnchor, constant: 5).isActive = true
     customTextView.trailingAnchor.constraint(equalTo:
@@ -71,8 +76,6 @@ class TableViewCell: UITableViewCell {
       topAnchor, constant: 5).isActive = true
     customTextView.bottomAnchor.constraint(equalTo:
       bottomAnchor, constant: -5).isActive = true
-    customTextView.becomeFirstResponder()
-    moveCursor(textView: customTextView, offset: tableRow.cursorOffset)
   }
   
   func setListMode(listState: ListState) {
@@ -110,8 +113,7 @@ class TableViewCell: UITableViewCell {
     let textColor = isChecked ? UIColor.lightGray : UIColor.black
     var attributes: [NSAttributedString.Key: Any] = [
       .foregroundColor: textColor,
-      .font: font,
-      .textEffect: NSAttributedString.TextEffectStyle.letterpressStyle]
+      .font: font]
     if isChecked {
       attributes.updateValue(NSUnderlineStyle.single.rawValue,
                              forKey: NSAttributedString.Key.strikethroughStyle)
@@ -126,7 +128,7 @@ class TableViewCell: UITableViewCell {
   
   override func prepareForReuse() {
     super.prepareForReuse()
-    self.tableRow = TableRow()
+    self.tableRow = nil
     self.customTextView.text = nil
   }
 }
@@ -225,9 +227,9 @@ extension TableViewCell: UITextViewDelegate {
   private func didEscapeFromCell(isAdded: Bool, text: String) {
     updateTableRowText()
     if isAdded {
-      delegate?.addNextCell(indexPath: indexPath, tableRow: tableRow, text: text)
-    } else if indexPath.row != 0 {
-      delegate?.deleteCell(indexPath: indexPath, text: text)
+      delegate?.addNextCell(row: row, tableRow: tableRow, text: text)
+    } else if row != 0 {
+      delegate?.deleteCell(row: row, text: text)
     }
   }
 }
