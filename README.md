@@ -2,13 +2,12 @@
 
 - [demo link](https://www.youtube.com/watch?v=K9Ndkai5R0w)
 
+![Alt text](/ScreenShots/checklistSnapshot.png)
 
 ## purpose
 
 - 메모앱의 bullet list 기능 구현
 
-
-![Alt text](/Screenshots/checklistSnapshot.png)
 
 ## feature
 
