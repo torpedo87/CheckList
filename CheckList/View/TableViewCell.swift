@@ -213,10 +213,11 @@ extension TableViewCell: UITextViewDelegate {
   
   private func moveCursor(textView: UITextView, offset: Int) {
     if let selectedRange = textView.selectedTextRange {
-      let newPosition = textView.position(from: selectedRange.start,
-                                          offset: offset)!
-      textView.selectedTextRange = textView.textRange(from: newPosition,
-                                                      to: newPosition)
+      if let newPosition = textView.position(from: selectedRange.start,
+                                             offset: offset) {
+        textView.selectedTextRange = textView.textRange(from: newPosition,
+                                                        to: newPosition)
+      }
     }
   }
   

@@ -16,7 +16,7 @@ class ShortcutCell: UITableViewCell {
     textField.delegate = self
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.textAlignment = .center
-    textField.layer.borderWidth = 1
+    textField.layer.borderWidth = 0.2
     return textField
   }()
   
@@ -25,7 +25,7 @@ class ShortcutCell: UITableViewCell {
     textField.delegate = self
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.textAlignment = .center
-    textField.layer.borderWidth = 1
+    textField.layer.borderWidth = 0.2
     return textField
   }()
   
@@ -34,14 +34,14 @@ class ShortcutCell: UITableViewCell {
     textField.delegate = self
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.textAlignment = .center
-    textField.layer.borderWidth = 1
+    textField.layer.borderWidth = 0.2
     return textField
   }()
   
   private lazy var stackView: UIStackView = {
     let stackView = UIStackView()
     stackView.axis = .horizontal
-    stackView.alignment = .center
+    stackView.alignment = .fill
     stackView.distribution = .fillEqually
     stackView.translatesAutoresizingMaskIntoConstraints = false
     return stackView

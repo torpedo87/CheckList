@@ -42,7 +42,6 @@ class SettingViewController: UIViewController {
   }()
   private lazy var headerView: UIView = {
     let view = UIView()
-    view.backgroundColor = UIColor.yellow
     view.translatesAutoresizingMaskIntoConstraints = false
     return view
   }()
@@ -152,10 +151,11 @@ class SettingViewController: UIViewController {
   func saveShorcuts() {
     var shortcutArr = [Shortcut]()
     for index in 0..<shortcuts.count {
-      let cell = tableView.cellForRow(at: IndexPath(row: index,
-                                                    section: 0)) as! ShortcutCell
-      if let shortcut = cell.getShortcut() {
-        shortcutArr.append(shortcut)
+      if let cell = tableView.cellForRow(at: IndexPath(row: index,
+                                                       section: 0)) as? ShortcutCell {
+        if let shortcut = cell.getShortcut() {
+          shortcutArr.append(shortcut)
+        }
       }
     }
     if let encoded = try? JSONEncoder().encode(shortcutArr) {

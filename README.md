@@ -1,5 +1,7 @@
 # CheckList
 
+![Alt text](/Screenshots/checklistSnapshot.png)
+
 ## feature
 - bullet list
 - custom shortcut setting
